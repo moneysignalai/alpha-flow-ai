@@ -4,7 +4,7 @@ Alpha Flow AI is a modular pipeline that ingests institutional options flow, enr
 
 ## Components
 
-- **Data Layer (`src/data`)**: Async providers for Polygon/Massive (prices, options flow, greeks) and Benzinga (news). Cached via TTL to avoid redundant pulls.
+- **Data Layer (`src/data`)**: Unified Massive/Polygon provider (prices, options flow, greeks) and Benzinga (news). Cached via TTL to avoid redundant pulls.
 - **Engines (`src/engines`)**:
   - `MarketRegimeEngine`: derives trend, volatility, liquidity, GEX/VEX estimates.
   - `OptionsFlowEngine`: filters and scores institutional flow, rejecting lotto trades.
@@ -14,7 +14,7 @@ Alpha Flow AI is a modular pipeline that ingests institutional options flow, enr
   - `ScoringEngine`: aggregates weighted signals into a 0–100 confidence with grades.
   - `RoutingEngine`: pushes signals to Immediate Alerts, Intraday Watch, Swing Watch, or Reject and auto-refreshes queues.
 - **Learning (`src/learning`)**: tracks performance and nudges scoring weights based on reliability.
-- **Alerts (`src/alerts`)**: Webhook transports (Discord implemented) emitting human-readable payloads.
+- **Alerts (`src/alerts`)**: Webhook transports (Telegram primary, Discord optional) emitting human-readable payloads.
 - **Orchestration (`src/core/brain.py`)**: coordinates the end-to-end run for a list of tickers.
 - **Scheduler (`src/core/scheduler.py`)**: APScheduler wrapper to refresh watch queues periodically.
 

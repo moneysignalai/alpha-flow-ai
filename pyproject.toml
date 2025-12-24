@@ -5,7 +5,9 @@ description = "Super-intelligent AI trading brain detecting institutional option
 authors = [{name = "Quant AI"}]
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

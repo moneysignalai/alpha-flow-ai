@@ -3,11 +3,13 @@ from __future__ import annotations
 import asyncio
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Awaitable, Callable, Dict, List, TypeVar
 
 from core.logging import get_logger
 
 logger = get_logger(__name__)
+
+T = TypeVar("T")
 
 
 class ProviderError(Exception):
@@ -19,7 +21,14 @@ class BaseProvider:
         raise NotImplementedError
 
 
-class PolygonProvider(BaseProvider):
+class MassivePolygonProvider(BaseProvider):
+    """Unified Massive/Polygon provider stub (Massive acquired Polygon).
+
+    The simulated implementation keeps a single credential while supporting
+    OHLC, greeks, and options flow retrieval so downstream callers do not need
+    to distinguish which brand is used.
+    """
+
     def __init__(self, api_key: str):
         self.api_key = api_key
 
@@ -34,23 +43,6 @@ class PolygonProvider(BaseProvider):
 
     async def fetch_greeks(self, ticker: str) -> Dict[str, float]:
         return {"delta": random.uniform(-1, 1), "gamma": random.uniform(-1, 1), "vega": random.uniform(0, 1)}
-
-
-class BenzingaProvider(BaseProvider):
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-
-    async def latest_news(self, ticker: str) -> List[Dict]:
-        now = datetime.utcnow()
-        return [
-            {"ticker": ticker, "headline": f"{ticker} beats estimates", "timestamp": now - timedelta(minutes=15)},
-            {"ticker": ticker, "headline": f"{ticker} announces guidance", "timestamp": now - timedelta(hours=2)},
-        ]
-
-
-class MassiveProvider(BaseProvider):
-    def __init__(self, api_key: str):
-        self.api_key = api_key
 
     async def options_flow(self, ticker: str) -> List[Dict]:
         now = datetime.utcnow()
@@ -75,11 +67,31 @@ class MassiveProvider(BaseProvider):
         return flows
 
 
-async def with_retry(coro, attempts: int = 3, base_delay: float = 0.1):
+class BenzingaProvider(BaseProvider):
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+
+    async def latest_news(self, ticker: str) -> List[Dict]:
+        now = datetime.utcnow()
+        return [
+            {"ticker": ticker, "headline": f"{ticker} beats estimates", "timestamp": now - timedelta(minutes=15)},
+            {"ticker": ticker, "headline": f"{ticker} announces guidance", "timestamp": now - timedelta(hours=2)},
+        ]
+
+
+async def with_retry(func: Callable[[], Awaitable[T]], attempts: int = 3, base_delay: float = 0.1) -> T:
+    """Execute a coroutine factory with retry and backoff.
+
+    Accepts a callable that returns a fresh awaitable on each attempt so that
+    failures do not exhaust a single coroutine object (which cannot be awaited
+    twice).
+    """
+
     for i in range(attempts):
         try:
-            return await coro
+            return await func()
         except Exception as exc:  # pragma: no cover - defensive
             if i == attempts - 1:
                 raise
             await asyncio.sleep(base_delay * (2**i))
+    raise ProviderError("with_retry exhausted without returning a result")

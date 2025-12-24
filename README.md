@@ -8,7 +8,7 @@ Super-intelligent AI trading brain that detects institutional options flow and r
 - Technical enrichment (RSI, MACD, EMAs, VWAP, volume trend)
 - Classification + scoring engine with route thresholds
 - Auto-refreshing queues for immediate, intraday, swing decisions
-- Discord webhook alerts (extensible to Telegram/webhooks)
+- Telegram alerts (Discord/webhook extensible)
 - Learning engine that adapts weights by reliability
 - Scheduler for continuous monitoring
 
@@ -36,7 +36,7 @@ Super-intelligent AI trading brain that detects institutional options flow and r
 
 ## Configuration
 - `config/settings.example.yaml` documents application, data, alert, queue, and learning settings.
-- Environment variables resolve secrets (Polygon, Massive, Benzinga, Discord, Telegram).
+- Environment variables resolve secrets (Massive/Polygon market data, Benzinga, Telegram, Discord).
 
 ## Docs
 See `/docs/ARCHITECTURE.md` for deep architecture notes and `/docs/INSTALL.md` for setup.
