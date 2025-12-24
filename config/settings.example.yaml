@@ -1,0 +1,39 @@
+app:
+  environment: development
+  log_level: INFO
+  scheduler_interval_seconds: 300
+  max_concurrent_tasks: 5
+
+market_data:
+  provider: massive_polygon
+  massive_polygon_api_key: ${MASSIVE_POLYGON_API_KEY}
+  cache_ttl_seconds: 120
+
+news:
+  provider: benzinga
+  benzinga_api_key: ${BENZINGA_API_KEY}
+
+alerts:
+  transports:
+    telegram:
+      enabled: true
+      bot_token: ${TELEGRAM_BOT_TOKEN}
+      chat_id: ${TELEGRAM_CHAT_ID}
+    discord:
+      enabled: false
+      webhook_url: ${DISCORD_WEBHOOK_URL}
+    webhook:
+      enabled: false
+      endpoint: https://example.com/alerts
+
+learning:
+  lookback_days: 60
+  min_trades: 50
+
+queues:
+  intraday_refresh_minutes: 15
+  swing_refresh_minutes: 60
+  expiry_days: 10
+
+storage:
+  path: ${ALERT_DB_PATH:-data/alerts.db}

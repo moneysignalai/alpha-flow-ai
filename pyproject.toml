@@ -1,0 +1,18 @@
+[project]
+name = "alpha-flow-ai"
+version = "0.1.0"
+description = "Super-intelligent AI trading brain detecting institutional options flow and routing alerts"
+authors = [{name = "Quant AI"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["tests"]
