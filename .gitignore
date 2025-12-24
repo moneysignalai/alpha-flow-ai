@@ -5,3 +5,5 @@ config/settings.yaml
 .eggs/
 build/
 dist/
+data/
+*.db

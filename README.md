@@ -9,6 +9,7 @@ Super-intelligent AI trading brain that detects institutional options flow and r
 - Classification + scoring engine with route thresholds
 - Auto-refreshing queues for immediate, intraday, swing decisions
 - Telegram alerts (Discord/webhook extensible)
+- SQLite-backed alert ledger for re-checking watchlist items
 - Learning engine that adapts weights by reliability
 - Scheduler for continuous monitoring
 
@@ -35,7 +36,7 @@ Super-intelligent AI trading brain that detects institutional options flow and r
 5. Start the scheduler: `python scripts/run_brain.py`
 
 ## Configuration
-- `config/settings.example.yaml` documents application, data, alert, queue, and learning settings.
+- `config/settings.example.yaml` documents application, data, alert, queue, storage, and learning settings.
 - Environment variables resolve secrets (Massive/Polygon market data, Benzinga, Telegram, Discord).
 
 ## Docs

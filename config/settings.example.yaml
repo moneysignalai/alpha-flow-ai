@@ -34,3 +34,6 @@ queues:
   intraday_refresh_minutes: 15
   swing_refresh_minutes: 60
   expiry_days: 10
+
+storage:
+  path: ${ALERT_DB_PATH:-data/alerts.db}

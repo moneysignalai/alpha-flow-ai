@@ -14,6 +14,7 @@ from engines.options_flow import OptionsFlowEngine
 from engines.routing import RoutingEngine
 from engines.scoring import ScoringEngine
 from engines.technical import TechnicalEngine
+from core.storage import AlertStore
 from learning.engine import LearningEngine
 from models.schemas import Candidate, RoutedSignal
 
@@ -40,6 +41,11 @@ class TradingBrain:
             intraday_expiry_minutes=self.config.get("queues", {}).get("intraday_refresh_minutes", 60),
             swing_expiry_days=self.config.get("queues", {}).get("expiry_days", 10),
         )
+        self.alert_store = AlertStore(
+            db_path=self.config.get("storage", {}).get("path", "data/alerts.db"),
+            intraday_expiry_minutes=self.config.get("queues", {}).get("intraday_refresh_minutes", 60),
+            swing_expiry_days=self.config.get("queues", {}).get("expiry_days", 10),
+        )
         self.alerts = AlertDispatcher(config)
         self.learning = LearningEngine()
 
@@ -63,6 +69,7 @@ class TradingBrain:
             route = self.routing.route(score, signal)
             if route == "immediate_alert":
                 await self.alerts.dispatch(signal)
+            self.alert_store.record_signal(signal, metadata={"has_news": has_news})
             routed.append(signal)
         return routed
 
@@ -74,5 +81,6 @@ class TradingBrain:
             except Exception as exc:
                 logger.warning(f"Failed to run for ticker {ticker}: {exc}")
         self.routing.refresh_queues()
+        self.alert_store.expire_stale()
         self.learning.adjust_weights(self.scoring)
         return signals

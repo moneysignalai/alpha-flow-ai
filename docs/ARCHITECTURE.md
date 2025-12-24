@@ -15,6 +15,7 @@ Alpha Flow AI is a modular pipeline that ingests institutional options flow, enr
   - `RoutingEngine`: pushes signals to Immediate Alerts, Intraday Watch, Swing Watch, or Reject and auto-refreshes queues.
 - **Learning (`src/learning`)**: tracks performance and nudges scoring weights based on reliability.
 - **Alerts (`src/alerts`)**: Webhook transports (Telegram primary, Discord optional) emitting human-readable payloads.
+- **Persistence (`src/core/storage.py`)**: SQLite-backed ledger for queued alerts needing later movement validation.
 - **Orchestration (`src/core/brain.py`)**: coordinates the end-to-end run for a list of tickers.
 - **Scheduler (`src/core/scheduler.py`)**: APScheduler wrapper to refresh watch queues periodically.
 
