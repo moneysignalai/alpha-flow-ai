@@ -26,17 +26,27 @@ class OptionsFlowEngine:
                 expiry = datetime.fromisoformat(expiry)
             direction = Direction.CALL if flow.get("direction") == "call" else Direction.PUT
             conviction = self._conviction(flow)
+            expiry_horizon = expiry - datetime.utcnow()
+            dte = max(int(expiry_horizon.days), 0)
             event = FlowEvent(
                 ticker=flow.get("ticker"),
                 direction=direction,
                 notional=float(flow.get("notional")),
                 premium=float(flow.get("premium")),
                 iv=float(flow.get("iv")),
-                expiry_horizon=expiry - datetime.utcnow(),
+                expiry_horizon=expiry_horizon,
+                dte=dte,
                 conviction_score=conviction,
                 spot_price=float(flow.get("spot")),
                 strike=float(flow.get("strike")),
                 expiry=expiry,
+                option_symbol=flow.get("option_symbol") or flow.get("optionSymbol") or "",
+                side=(flow.get("side") or direction.value).upper(),
+                last_price=self._safe_float(flow.get("last_price")),
+                bid=self._safe_float(flow.get("bid")),
+                ask=self._safe_float(flow.get("ask")),
+                volume=self._safe_int(flow.get("volume")),
+                open_interest=self._safe_int(flow.get("open_interest")),
                 volume_multiple=float(flow.get("volume_multiple")),
                 is_sweep=bool(flow.get("is_sweep", False)),
                 is_block=bool(flow.get("is_block", False)),
@@ -52,3 +62,17 @@ class OptionsFlowEngine:
         weight += 1.0 if flow.get("is_block") else 0
         weight += min(flow.get("volume_multiple", 1), 3)
         return weight
+
+    @staticmethod
+    def _safe_float(value):
+        try:
+            return float(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _safe_int(value):
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None

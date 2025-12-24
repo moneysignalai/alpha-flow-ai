@@ -10,16 +10,27 @@ logger = get_logger(__name__)
 
 class CandidateBuilder:
     def build(self, flows: List[FlowEvent], price: PriceSnapshot, regime: MarketRegimeState, technical: TechnicalContext) -> List[Candidate]:
-        candidates: List[Candidate] = []
-        for flow in flows:
-            if flow.ticker != price.ticker:
-                continue
-            candidate = Candidate(
-                ticker=flow.ticker,
-                flow=flow,
-                price=price,
-                regime=regime,
-                technical=technical,
-            )
-            candidates.append(candidate)
-        return candidates
+        ticker_flows = [f for f in flows if f.ticker == price.ticker]
+        if not ticker_flows:
+            return []
+
+        primary = max(ticker_flows, key=lambda f: f.notional)
+        candidate = Candidate(
+            ticker=primary.ticker,
+            flow=primary,
+            price=price,
+            regime=regime,
+            technical=technical,
+            primary_option_symbol=primary.option_symbol,
+            primary_expiry=primary.expiry.date(),
+            primary_strike=primary.strike,
+            primary_side=primary.side,
+            primary_dte=primary.dte,
+            primary_last_price=primary.last_price,
+            primary_bid=primary.bid,
+            primary_ask=primary.ask,
+            primary_volume=primary.volume,
+            primary_open_interest=primary.open_interest,
+            primary_notional=primary.notional,
+        )
+        return [candidate]

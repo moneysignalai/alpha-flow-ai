@@ -13,10 +13,18 @@ def make_candidate(score_boost: float = 1.0) -> Candidate:
         premium=500_000 * score_boost,
         iv=0.4,
         expiry_horizon=timedelta(days=20),
+        dte=20,
         conviction_score=4 * score_boost,
         spot_price=150,
         strike=155,
         expiry=datetime.utcnow() + timedelta(days=30),
+        option_symbol="AAPL250215C00155000",
+        side="CALL",
+        last_price=4.2,
+        bid=4.1,
+        ask=4.3,
+        volume=1200,
+        open_interest=5000,
         volume_multiple=4,
     )
     price = PriceSnapshot(ticker="AAPL", price=150, change_pct=2.5, volume=1_200_000, vwap=148, sector_strength=0.5)

@@ -12,10 +12,18 @@ def build_signal(route: str = "intraday_watch") -> RoutedSignal:
         premium=50_000,
         iv=0.4,
         expiry_horizon=timedelta(days=7),
+        dte=7,
         conviction_score=0.85,
         spot_price=190.0,
         strike=195.0,
         expiry=datetime.utcnow() + timedelta(days=7),
+        option_symbol="AAPL240901C00195000",
+        side="CALL",
+        last_price=5.2,
+        bid=5.1,
+        ask=5.3,
+        volume=2000,
+        open_interest=7500,
         volume_multiple=5,
     )
     price = PriceSnapshot(

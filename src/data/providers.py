@@ -49,19 +49,33 @@ class MassivePolygonProvider(BaseProvider):
         flows = []
         for _ in range(random.randint(3, 8)):
             premium = random.uniform(250_000, 2_000_000)
+            expiry = now + timedelta(days=random.randint(5, 45))
+            strike = random.uniform(0.8, 1.2) * random.uniform(80, 120)
+            side = random.choice(["CALL", "PUT"])
+            option_symbol = f"{ticker}{expiry:%y%m%d}{'C' if side == 'CALL' else 'P'}{int(strike*1000):08d}"
+            bid = round(random.uniform(1, 10), 2)
+            ask = round(bid + random.uniform(0.05, 0.25), 2)
+            last = round((bid + ask) / 2, 2)
             flows.append(
                 {
                     "ticker": ticker,
-                    "direction": random.choice(["call", "put"]),
+                    "direction": side.lower(),
                     "notional": premium * random.uniform(3, 6),
                     "premium": premium,
                     "iv": random.uniform(0.25, 0.9),
-                    "expiry": now + timedelta(days=random.randint(5, 45)),
-                    "strike": random.uniform(0.8, 1.2) * random.uniform(80, 120),
+                    "expiry": expiry,
+                    "strike": strike,
                     "spot": random.uniform(80, 120),
                     "volume_multiple": random.uniform(1.5, 10),
                     "is_sweep": random.choice([True, False]),
                     "is_block": random.choice([True, False]),
+                    "option_symbol": option_symbol,
+                    "side": side,
+                    "bid": bid,
+                    "ask": ask,
+                    "last_price": last,
+                    "volume": random.randint(500, 5000),
+                    "open_interest": random.randint(500, 10_000),
                 }
             )
         return flows

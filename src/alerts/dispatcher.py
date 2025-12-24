@@ -54,10 +54,47 @@ class AlertDispatcher:
 
     def _format_signal(self, signal: RoutedSignal) -> str:
         c = signal.candidate
+        primary_symbol = c.primary_option_symbol or c.flow.option_symbol
+        primary_expiry = c.primary_expiry or c.flow.expiry.date()
+        contract_line = (
+            f"Options Contract:\n"
+            f"• Contract: {self._fmt_contract_side(c.primary_side or c.flow.side)} "
+            f"{self._fmt_number(c.primary_strike or c.flow.strike)} {primary_expiry} "
+            f"({self._fmt_int(c.primary_dte or c.flow.dte)}D)\n"
+            f"• Option Symbol: {primary_symbol or 'n/a'}\n"
+            f"• Last: {self._fmt_price(c.primary_last_price or c.flow.last_price)}   "
+            f"Bid/Ask: {self._fmt_price(c.primary_bid or c.flow.bid)} x {self._fmt_price(c.primary_ask or c.flow.ask)}\n"
+            f"• Volume: {self._fmt_int(c.primary_volume or c.flow.volume)}   "
+            f"OI: {self._fmt_int(c.primary_open_interest or c.flow.open_interest)}\n"
+            f"• Flow Notional (headline trade): ${self._fmt_number(c.primary_notional or c.flow.notional)}"
+        )
+
         return (
-            f"[{signal.route.upper()}] {c.ticker} {c.flow.direction.value.upper()} | "
-            f"Score: {signal.score.score} ({signal.score.grade})\n"
-            f"Why: {signal.score.reasoning}\n"
-            f"Time: {signal.created_at.isoformat()} | Expiry: {c.flow.expiry.date()}\n"
+            f"🦈 AI Trade Signal — {signal.score.grade}\n"
+            f"Ticker: {c.ticker}\n"
+            f"Direction: {c.flow.direction.value.upper()}\n"
+            f"Confidence: {signal.score.score}% | Grade: {signal.score.grade}\n"
+            f"Time: {signal.created_at.isoformat()} | Expiry: {primary_expiry}\n"
+            f"\n{contract_line}\n\n"
+            f"Reasoning:\n{signal.score.reasoning}\n"
             f"Risk: {c.regime.risk_environment} | Anomaly: vol x{c.flow.volume_multiple:.2f}"
         )
+
+    @staticmethod
+    def _fmt_price(value):
+        return f"{value:.2f}" if value is not None else "n/a"
+
+    @staticmethod
+    def _fmt_int(value):
+        return f"{value:,}" if value is not None else "n/a"
+
+    @staticmethod
+    def _fmt_number(value):
+        try:
+            return f"{float(value):,.2f}"
+        except (TypeError, ValueError):
+            return "n/a"
+
+    @staticmethod
+    def _fmt_contract_side(side: str) -> str:
+        return side.upper() if side else "n/a"

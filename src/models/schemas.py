@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import List, Optional
 
@@ -33,11 +33,19 @@ class FlowEvent:
     premium: float
     iv: float
     expiry_horizon: timedelta
+    dte: int
     conviction_score: float
     spot_price: float
     strike: float
     expiry: datetime
+    option_symbol: str
+    side: str
     volume_multiple: float
+    last_price: Optional[float] = None
+    bid: Optional[float] = None
+    ask: Optional[float] = None
+    volume: Optional[int] = None
+    open_interest: Optional[int] = None
     is_sweep: bool = False
     is_block: bool = False
     raw: dict = field(default_factory=dict)
@@ -78,6 +86,17 @@ class Candidate:
     regime: MarketRegimeState
     technical: TechnicalContext
     classification: Optional[str] = None
+    primary_option_symbol: Optional[str] = None
+    primary_expiry: Optional[date] = None
+    primary_strike: Optional[float] = None
+    primary_side: Optional[str] = None
+    primary_dte: Optional[int] = None
+    primary_last_price: Optional[float] = None
+    primary_bid: Optional[float] = None
+    primary_ask: Optional[float] = None
+    primary_volume: Optional[int] = None
+    primary_open_interest: Optional[int] = None
+    primary_notional: Optional[float] = None
 
 
 @dataclass
