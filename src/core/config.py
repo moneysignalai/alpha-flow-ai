@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict
@@ -13,6 +14,16 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when dependency miss
 
 class ConfigError(Exception):
     pass
+
+
+class AlertStyle(str, Enum):
+    SHORT = "SHORT"
+    MEDIUM = "MEDIUM"
+    DEEP_DIVE = "DEEP_DIVE"
+
+
+DEFAULT_ALERT_STYLE = AlertStyle.MEDIUM
+ALERT_STYLE = AlertStyle(os.getenv("ALERT_STYLE", DEFAULT_ALERT_STYLE.value))
 
 
 @lru_cache(maxsize=1)

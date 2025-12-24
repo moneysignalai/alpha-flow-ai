@@ -27,6 +27,25 @@ class ScoringEngine:
         score = round(raw * 100, 2)
         grade = self._grade(score)
         reasoning = f"flow={flow_score:.2f} tech={tech_score:.2f} regime={regime_score:.2f} news={news_score:.2f}"
+        candidate.total_score = score
+        candidate.grade = grade
+        candidate.flow_score = round(flow_score * 40, 1)
+        candidate.technical_score = round(tech_score * 30, 1)
+        candidate.regime_score = round(regime_score * 20, 1)
+        candidate.catalyst_score = round(news_score * 10, 1)
+        candidate.execution_quality_score = candidate.execution_quality_score or round(tech_score * 100, 1)
+        candidate.gex_sign = candidate.gex_sign or ("pos" if candidate.regime.gex >= 0 else "neg")
+        candidate.gex_magnitude = candidate.gex_magnitude or abs(candidate.regime.gex)
+        candidate.vex_state = candidate.vex_state or ("elevated" if candidate.regime.vex > 0.2 else "normal")
+        candidate.rsi_intraday = candidate.rsi_intraday or candidate.technical.rsi
+        candidate.rsi_daily = candidate.rsi_daily or candidate.technical.rsi
+        candidate.price_vs_vwap = candidate.price_vs_vwap or ("above" if candidate.price.price >= candidate.price.vwap else "below")
+        candidate.price_vs_ema9 = candidate.price_vs_ema9 or ("above" if candidate.price.price >= candidate.technical.ema_fast else "below")
+        candidate.price_vs_ema20 = candidate.price_vs_ema20 or ("above" if candidate.price.price >= candidate.technical.ema_mid else "below")
+        candidate.intraday_trend = candidate.intraday_trend or candidate.technical.bias
+        candidate.daily_trend = candidate.daily_trend or candidate.regime.trend_bias
+        candidate.flow_pattern = candidate.flow_pattern or ("sweep" if candidate.flow.is_sweep else "block" if candidate.flow.is_block else "mixed")
+        candidate.time_horizon = candidate.time_horizon or "unknown"
         return ScoreResult(score=score, grade=grade, reasoning=reasoning)
 
     def _tech_score(self, candidate: Candidate) -> float:

@@ -17,10 +17,12 @@ class CandidateBuilder:
         primary = max(ticker_flows, key=lambda f: f.notional)
         candidate = Candidate(
             ticker=primary.ticker,
+            symbol=primary.ticker,
             flow=primary,
             price=price,
             regime=regime,
             technical=technical,
+            direction=primary.direction.value,
             primary_option_symbol=primary.option_symbol,
             primary_expiry=primary.expiry.date(),
             primary_strike=primary.strike,

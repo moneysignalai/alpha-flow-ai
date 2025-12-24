@@ -37,7 +37,7 @@ Super-intelligent AI trading brain that detects institutional options flow and r
 
 ## Configuration
 - `config/settings.example.yaml` documents application, data, alert, queue, storage, and learning settings.
-- Environment variables resolve secrets (Massive/Polygon market data, Benzinga, Telegram, Discord).
+- Environment variables resolve secrets (Massive/Polygon market data, Benzinga, Telegram, Discord) and defaults such as `ALERT_STYLE` (SHORT, MEDIUM, DEEP_DIVE).
 
 ## Docs
 See `/docs/ARCHITECTURE.md` for deep architecture notes and `/docs/INSTALL.md` for setup.

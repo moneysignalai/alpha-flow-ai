@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from alerts.dispatcher import AlertDispatcher
+from alerts.templates import format_alert
 from models.schemas import Candidate, Direction, FlowEvent, MarketRegimeState, PriceSnapshot, RoutedSignal, ScoreResult, TechnicalContext
 
 
@@ -72,12 +73,32 @@ def build_signal():
 
 
 def test_alert_contains_option_details():
-    dispatcher = AlertDispatcher(config={"alerts": {"transports": {"telegram": {"enabled": False}}}})
+    dispatcher = AlertDispatcher(config={"alerts": {"style": "MEDIUM", "transports": {"telegram": {"enabled": False}}}})
     message = dispatcher._format_signal(build_signal())
 
     assert "Option Symbol: NVDA250214C00700000" in message
-    assert "Contract: CALL 700.00" in message
-    assert "(23D)" in message
+    assert "Contract: 700.0C 2025-02-14 (23D)" in message
     assert "Volume: 12,430" in message
     assert "OI: 18,900" in message
     assert "Flow Notional" in message
+
+
+def test_short_template_compact_includes_contract():
+    signal = build_signal()
+    signal.candidate.grade = "A"
+    message = format_alert(signal.candidate, alert_type="immediate_alert", style="SHORT")
+
+    assert "NVDA CALL ALERT" in message
+    assert "Opt: NVDA250214C00700000" in message
+    assert "Bid/Ask" in message
+
+
+def test_deep_dive_template_sections():
+    signal = build_signal()
+    signal.candidate.summary_text = "Structured setup"
+    message = format_alert(signal.candidate, alert_type="swing_watch", style="DEEP_DIVE")
+
+    assert "AI Deep-Dive Trade Signal" in message
+    assert "Options Contract Details" in message
+    assert "Flow Notional Driving Setup" in message
+    assert "AI Summary (Plain English):" in message

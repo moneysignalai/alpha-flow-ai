@@ -86,6 +86,8 @@ class Candidate:
     regime: MarketRegimeState
     technical: TechnicalContext
     classification: Optional[str] = None
+    symbol: Optional[str] = None
+    direction: Optional[str] = None
     primary_option_symbol: Optional[str] = None
     primary_expiry: Optional[date] = None
     primary_strike: Optional[float] = None
@@ -97,6 +99,34 @@ class Candidate:
     primary_volume: Optional[int] = None
     primary_open_interest: Optional[int] = None
     primary_notional: Optional[float] = None
+    total_score: Optional[float] = None
+    grade: Optional[str] = None
+    time_horizon: Optional[str] = None
+    flow_score: Optional[float] = None
+    technical_score: Optional[float] = None
+    regime_score: Optional[float] = None
+    catalyst_score: Optional[float] = None
+    anomaly_flag: bool = False
+    anomaly_strength: float = 0.0
+    execution_quality_score: Optional[float] = None
+    flow_pattern: Optional[str] = None
+    intraday_trend: Optional[str] = None
+    daily_trend: Optional[str] = None
+    price_vs_vwap: Optional[str] = None
+    price_vs_ema9: Optional[str] = None
+    price_vs_ema20: Optional[str] = None
+    rsi_intraday: Optional[float] = None
+    rsi_daily: Optional[float] = None
+    gex_sign: Optional[str] = None
+    gex_magnitude: Optional[float] = None
+    vex_state: Optional[str] = None
+    event_type: Optional[str] = None
+    has_upcoming_event: Optional[bool] = None
+    days_to_event: Optional[int] = None
+    sector_alignment_score: Optional[float] = None
+    etf_alignment_score: Optional[float] = None
+    avoid_trade_reason: Optional[str] = None
+    summary_text: Optional[str] = None
 
 
 @dataclass
