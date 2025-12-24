@@ -14,34 +14,14 @@ logger = StructuredAdapter(get_logger(__name__), {})
 class AlertDispatcher:
     def __init__(self, config: Dict):
         self.config = config or {}
-        transports = self.config.get("alerts", {}).get("transports", {})
-        self.telegram_cfg = transports.get("telegram", {})
-        self.discord_webhook = transports.get("discord", {})
+        self.discord_webhook = self.config.get("alerts", {}).get("transports", {}).get("discord", {})
 
     async def dispatch(self, signal: RoutedSignal):
         tasks = []
-        if self.telegram_cfg.get("enabled"):
-            tasks.append(asyncio.create_task(self._send_telegram(signal)))
         if self.discord_webhook.get("enabled") and self.discord_webhook.get("webhook_url"):
             tasks.append(asyncio.create_task(self._send_discord(signal)))
         if tasks:
             await asyncio.gather(*tasks)
-
-    async def _send_telegram(self, signal: RoutedSignal):
-        bot_token = self.telegram_cfg.get("bot_token")
-        chat_id = self.telegram_cfg.get("chat_id")
-        if not bot_token or not chat_id:
-            logger.warning("Telegram transport missing bot_token or chat_id; skipping")
-            return
-        message = self._format_signal(signal)
-        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-        payload = json.dumps({"chat_id": chat_id, "text": message})
-        req = request.Request(url, data=payload.encode(), headers={"Content-Type": "application/json"})
-        try:
-            await asyncio.to_thread(request.urlopen, req, timeout=5)
-            logger.info("Sent telegram alert", extra={"ticker": signal.candidate.ticker, "route": signal.route})
-        except Exception as exc:  # pragma: no cover - network best effort
-            logger.warning(f"Failed to send telegram alert: {exc}")
 
     async def _send_discord(self, signal: RoutedSignal):
         payload = json.dumps({"content": self._format_signal(signal)}).encode()

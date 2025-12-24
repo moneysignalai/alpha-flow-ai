@@ -5,8 +5,9 @@ app:
   max_concurrent_tasks: 5
 
 market_data:
-  provider: massive_polygon
-  massive_polygon_api_key: ${MASSIVE_POLYGON_API_KEY}
+  provider: polygon
+  polygon_api_key: ${POLYGON_API_KEY}
+  massive_api_key: ${MASSIVE_API_KEY}
   cache_ttl_seconds: 120
 
 news:
@@ -15,13 +16,13 @@ news:
 
 alerts:
   transports:
-    telegram:
+    discord:
       enabled: true
+      webhook_url: ${DISCORD_WEBHOOK_URL}
+    telegram:
+      enabled: false
       bot_token: ${TELEGRAM_BOT_TOKEN}
       chat_id: ${TELEGRAM_CHAT_ID}
-    discord:
-      enabled: false
-      webhook_url: ${DISCORD_WEBHOOK_URL}
     webhook:
       enabled: false
       endpoint: https://example.com/alerts

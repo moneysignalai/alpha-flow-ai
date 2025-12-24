@@ -26,8 +26,9 @@ class TradingBrain:
         md = self.config.get("market_data", {})
         news = self.config.get("news", {})
         self.data = DataService(
-            market_data_key=md.get("massive_polygon_api_key", ""),
+            polygon_key=md.get("polygon_api_key", ""),
             benzinga_key=news.get("benzinga_api_key", ""),
+            massive_key=md.get("massive_api_key", ""),
             cache_ttl_seconds=md.get("cache_ttl_seconds", 120),
         )
         self.regime_engine = MarketRegimeEngine()

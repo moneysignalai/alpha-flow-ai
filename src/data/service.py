@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Dict, List
 
 from core.logging import get_logger
-from data.providers import BenzingaProvider, MassivePolygonProvider, with_retry
+from data.providers import BenzingaProvider, MassiveProvider, PolygonProvider, with_retry
 from models.schemas import PriceSnapshot
 
 logger = get_logger(__name__)
@@ -28,9 +28,10 @@ class TTLCache:
 
 
 class DataService:
-    def __init__(self, market_data_key: str, benzinga_key: str, cache_ttl_seconds: int = 120):
-        self.market = MassivePolygonProvider(market_data_key)
+    def __init__(self, polygon_key: str, benzinga_key: str, massive_key: str, cache_ttl_seconds: int = 120):
+        self.polygon = PolygonProvider(polygon_key)
         self.benzinga = BenzingaProvider(benzinga_key)
+        self.massive = MassiveProvider(massive_key)
         self.cache = TTLCache(cache_ttl_seconds)
 
     async def get_price_snapshot(self, ticker: str) -> PriceSnapshot:
@@ -38,7 +39,7 @@ class DataService:
         cached = self.cache.get(cache_key)
         if cached:
             return cached
-        series = await with_retry(self.market.fetch_ohlc(ticker))
+        series = await with_retry(self.polygon.fetch_ohlc(ticker))
         price = float(series[-1])
         prev = series[-2] if len(series) > 1 else series[-1]
         change_pct = float((price - prev) / prev * 100) if prev else 0
@@ -62,12 +63,12 @@ class DataService:
         cached = self.cache.get(cache_key)
         if cached:
             return cached
-        greeks = await with_retry(self.market.fetch_greeks(ticker))
+        greeks = await with_retry(self.polygon.fetch_greeks(ticker))
         self.cache.set(cache_key, greeks)
         return greeks
 
     async def get_options_flow(self, ticker: str):
-        return await with_retry(self.market.options_flow(ticker))
+        return await with_retry(self.massive.options_flow(ticker))
 
     async def get_news(self, ticker: str):
         return await with_retry(self.benzinga.latest_news(ticker))

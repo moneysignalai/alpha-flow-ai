@@ -19,14 +19,7 @@ class BaseProvider:
         raise NotImplementedError
 
 
-class MassivePolygonProvider(BaseProvider):
-    """Unified Massive/Polygon provider stub (Massive acquired Polygon).
-
-    The simulated implementation keeps a single credential while supporting
-    OHLC, greeks, and options flow retrieval so downstream callers do not need
-    to distinguish which brand is used.
-    """
-
+class PolygonProvider(BaseProvider):
     def __init__(self, api_key: str):
         self.api_key = api_key
 
@@ -41,6 +34,23 @@ class MassivePolygonProvider(BaseProvider):
 
     async def fetch_greeks(self, ticker: str) -> Dict[str, float]:
         return {"delta": random.uniform(-1, 1), "gamma": random.uniform(-1, 1), "vega": random.uniform(0, 1)}
+
+
+class BenzingaProvider(BaseProvider):
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+
+    async def latest_news(self, ticker: str) -> List[Dict]:
+        now = datetime.utcnow()
+        return [
+            {"ticker": ticker, "headline": f"{ticker} beats estimates", "timestamp": now - timedelta(minutes=15)},
+            {"ticker": ticker, "headline": f"{ticker} announces guidance", "timestamp": now - timedelta(hours=2)},
+        ]
+
+
+class MassiveProvider(BaseProvider):
+    def __init__(self, api_key: str):
+        self.api_key = api_key
 
     async def options_flow(self, ticker: str) -> List[Dict]:
         now = datetime.utcnow()
@@ -63,18 +73,6 @@ class MassivePolygonProvider(BaseProvider):
                 }
             )
         return flows
-
-
-class BenzingaProvider(BaseProvider):
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-
-    async def latest_news(self, ticker: str) -> List[Dict]:
-        now = datetime.utcnow()
-        return [
-            {"ticker": ticker, "headline": f"{ticker} beats estimates", "timestamp": now - timedelta(minutes=15)},
-            {"ticker": ticker, "headline": f"{ticker} announces guidance", "timestamp": now - timedelta(hours=2)},
-        ]
 
 
 async def with_retry(coro, attempts: int = 3, base_delay: float = 0.1):
